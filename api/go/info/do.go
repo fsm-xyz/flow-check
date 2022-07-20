@@ -2,7 +2,6 @@ package info
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -31,7 +30,6 @@ const (
 )
 
 func Run() {
-	BeforeStart()
 	for {
 		check()
 		time.Sleep(30 * time.Second)
@@ -106,25 +104,4 @@ func httpDo(req *http.Request) []byte {
 	return respBody
 }
 
-var m *mail.Mail
-
-func BeforeStart() {
-	filename := flag.String("c", "conf/config.json", "配置文件")
-	flag.Parse()
-
-	BuildConfig(*filename)
-
-	m = &mail.Mail{
-		MailTo:   C.Mail.To,
-		MailFrom: C.Mail.From,
-		Subject:  C.Mail.Subject,
-		Host:     C.Mail.Host,
-		Port:     C.Mail.Port,
-
-		Password: C.Mail.Password,
-	}
-}
-
-func RefreshToken(token string) {
-	C.YD.Token = token
-}
+var M *mail.Mail

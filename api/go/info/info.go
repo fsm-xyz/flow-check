@@ -85,5 +85,5 @@ func (st *Status) sendMail(t mailType) {
 	}
 
 	fmt.Println(data)
-	m.Send(data)
+	M.Send(data)
 }
