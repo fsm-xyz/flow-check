@@ -52,7 +52,7 @@ type Status struct {
 func (st *Status) checkFlow() bool {
 	balance, _ := strconv.ParseFloat(st.ResBody.FlowInfor.BalanceFeeTotal, 64)
 	total, _ := strconv.ParseFloat(st.ResBody.FlowInfor.HighFeeTotal, 64)
-	if balance < C.Quota.MinFlowBalance || balance < total*C.Quota.MaxFlowBalancePercent {
+	if balance < C.Quota.MinFlowBalance || balance < total*C.Quota.MinFlowBalancePercent {
 		return false
 	}
 
@@ -62,7 +62,7 @@ func (st *Status) checkFlow() bool {
 func (st *Status) checkVoice() bool {
 	balance, _ := strconv.ParseFloat(st.ResBody.VoiceInfor.BalanceFeeTotal, 64)
 	total, _ := strconv.ParseFloat(st.ResBody.VoiceInfor.HighFeeTTotal, 64)
-	if balance < C.Quota.MinVoiceBalance || balance < total*C.Quota.MaxVoiceBalancePercent {
+	if balance < C.Quota.MinVoiceBalance || balance < total*C.Quota.MinVoiceBalancePercent {
 		return false
 	}
 
