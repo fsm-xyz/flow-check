@@ -1,0 +1,23 @@
+{
+    "mail": {
+        "to": "a@qq.com",
+        "from": "b@163.com",
+        "password": "123456",
+        "subject": "家庭V网",
+        "host": "smtp.163.com",
+        "port": 465
+    },
+    "quota": {
+        "min_flow_balance_percent": 1,
+        "min_voice_balance_percent": 1,
+        "min_flow_balance": 5,
+        "min_voice_balance": 10
+    },
+    "yd": {
+        "tel": "10086",
+        "token": "123456",
+        "wait_sms_time": 30,
+        "reload_time": 10
+    },
+    "port": 8000
+}

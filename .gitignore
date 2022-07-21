@@ -1,12 +1,15 @@
 # go
+
 *.exe
-conf
+config.json
 code.txt
 flow-check
 
 # rust
-/target
+
+target
 
 # img
+
 *.png
 *.jpg
