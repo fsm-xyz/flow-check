@@ -38,8 +38,12 @@ func headless() {
 		chromedp.DisableGPU,
 		chromedp.WindowSize(390, 844),
 		chromedp.UserDataDir(dir),
-		chromedp.Flag("headless", false),
 	)
+
+	fmt.Println(C.B.Headless)
+	if !C.B.Headless {
+		opts = append(opts, chromedp.Flag("headless", false))
+	}
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	defer cancel()

@@ -30,6 +30,9 @@ type Config struct {
 		WaitSMSTime int    `json:"wait_sms_time"`
 		ReloadTime  int    `json:"reload_time"`
 	}
+	B struct {
+		Headless bool `json:"headless"`
+	} `json:"b"`
 	Port int `json:"port"`
 }
 
