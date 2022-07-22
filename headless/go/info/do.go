@@ -38,7 +38,7 @@ func headless() {
 		chromedp.DisableGPU,
 		chromedp.WindowSize(390, 844),
 		chromedp.UserDataDir(dir),
-		// chromedp.Flag("headless", false),
+		chromedp.Flag("headless", false),
 	)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
@@ -95,9 +95,10 @@ func headless() {
 			log.Fatal("定时刷新失败", err)
 		}
 
+		time.Sleep(10 * time.Second)
+
 		if err = chromedp.Run(
 			taskCtx,
-			chromedp.WaitReady("#highFeeT"),
 			chromedp.Evaluate(getVb(), &vb),
 			chromedp.Evaluate(getVt(), &vt),
 			chromedp.Evaluate(getFb(), &fb),
