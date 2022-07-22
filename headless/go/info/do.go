@@ -90,7 +90,10 @@ func headless() {
 		fb, ft string
 	)
 	for {
-		log.Println("定时刷新")
+
+		time.Sleep(time.Duration(C.YD.ReloadTime) * time.Second)
+
+		log.Println(C.YD.ReloadTime, "s定时刷新")
 		Running = false
 		if err = chromedp.Run(
 			taskCtx,
@@ -118,7 +121,6 @@ func headless() {
 		Running = true
 		fmt.Println("数据情况", vb, vt, fb, ft)
 		checkAndMail(vb, vt, fb, ft)
-		time.Sleep(time.Duration(C.YD.ReloadTime) * time.Second)
 	}
 }
 
