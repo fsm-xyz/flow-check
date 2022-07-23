@@ -23,3 +23,7 @@ curl 127.0.0.1:8000/running
 go build -o flow-check main.go
 ./flow-check -c config.json -r true
 ```
+
+## 日常
+
+每天早上发一封邮件确认一下

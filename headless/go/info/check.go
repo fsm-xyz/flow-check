@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func checkFlow(fb, ft string) bool {
@@ -27,16 +28,21 @@ func checkVoice(vb, vt string) bool {
 }
 
 func checkAndMail(vb, vt, fb, ft string) {
-	var data1, data2 string
-	if !checkFlow(fb, ft) {
-		data1 = fmt.Sprintf("流量不足，总共: %sG, 剩余: %sG", ft, fb)
-	}
-	if !checkVoice(vb, vt) {
-		data2 = fmt.Sprintf("语音不足，总共: %s, 剩余: %s", vt, vb)
+	var data string
+	now := time.Now()
+
+	if now.Hour() == 6 && (now.Minute() == 30 || now.Minute() == 0) {
+		data = fmt.Sprintf("每日定时检测\n流量总共: %sG, 剩余: %sG\n语音总共: %s, 剩余: %s\n", ft, fb, vt, vb)
 	}
 
-	if len(data1) > 0 || len(data2) > 0 {
-		data := fmt.Sprintf("%s\n%s", data1, data2)
+	if !checkFlow(fb, ft) {
+		data = fmt.Sprintf("%s流量不足, 总共: %sG, 剩余: %sG\n", data, ft, fb)
+	}
+	if !checkVoice(vb, vt) {
+		data = fmt.Sprintf("%s语音不足, 总共: %s, 剩余: %s\n", data, vt, vb)
+	}
+
+	if len(data) > 0 {
 		fmt.Println(data)
 		M.Send(data)
 	}
