@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"sync"
+	"strings"
 	"time"
 
 	"github.com/chromedp/cdproto/page"
@@ -15,12 +15,13 @@ import (
 )
 
 var (
-	once    sync.Once
 	Running bool
 )
 
 func Run() {
-	once.Do(headless)
+	if !Running {
+		headless()
+	}
 }
 
 var M *mail.Mail
@@ -30,17 +31,18 @@ const loginURL = "https://login.10086.cn/html/login/touch.html?channelID=20290&b
 func headless() {
 	dir, err := ioutil.TempDir("", "chromedp-example")
 	if err != nil {
-		log.Fatal(err)
+		log.Println("移除tmp目录失败", err)
+		return
 	}
 	defer os.RemoveAll(dir)
 
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
+		chromedp.UserAgent(`Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1`),
 		chromedp.DisableGPU,
 		chromedp.WindowSize(390, 844),
 		chromedp.UserDataDir(dir),
 	)
 
-	fmt.Println(C.B.Headless)
 	if !C.B.Headless {
 		opts = append(opts, chromedp.Flag("headless", false))
 	}
@@ -73,7 +75,8 @@ func headless() {
 		chromedp.Navigate(loginURL),
 		chromedp.Evaluate(getSMS(C.YD.Tel), nil),
 	); err != nil {
-		log.Fatal(err)
+		log.Println("获取短信失败", err)
+		return
 	}
 
 	// fmt.Println(submit(getCode()))
@@ -83,51 +86,49 @@ func headless() {
 		chromedp.Evaluate(submit(getCode()), nil),
 	)
 
-	// chromedp.
-	var (
-		buf    []byte
-		vb, vt string
-		fb, ft string
-	)
+	time.Sleep(10 * time.Second)
+
+	// 登录成功，接下来可以通过刷新页面获取数据，或者直接调用接口
+	// 刷新页面方式的话在linux服务器无法成功渲染
+	loop(taskCtx)
+}
+
+func loop(taskCtx context.Context) {
+	defer func() { Running = false }()
+	var cookie string
+	if C.Api {
+		if err := chromedp.Run(
+			taskCtx,
+			chromedp.Evaluate(getCookie(), &cookie),
+		); err != nil {
+			log.Println("获取token失败", err)
+			return
+		}
+
+		RefreshToken(getToken(cookie))
+	}
+
 	for {
-
-		time.Sleep(time.Duration(C.YD.ReloadTime) * time.Second)
-
 		log.Println(C.YD.ReloadTime, "s定时刷新")
 		Running = false
-		if err = chromedp.Run(
-			taskCtx,
-			chromedp.Reload(),
-		); err != nil {
-			log.Fatal("定时刷新失败", err)
+
+		if C.Api {
+			getStatus()
+		} else {
+			Loadpage(taskCtx)
 		}
 
-		time.Sleep(10 * time.Second)
-
-		if err = chromedp.Run(
-			taskCtx,
-			chromedp.Evaluate(getVb(), &vb),
-			chromedp.Evaluate(getVt(), &vt),
-			chromedp.Evaluate(getFb(), &fb),
-			chromedp.Evaluate(getFt(), &ft),
-			chromedp.FullScreenshot(&buf, 100),
-		); err != nil {
-			log.Fatal("定时刷新失败", err)
-		}
-
-		if err := ioutil.WriteFile("end.png", buf, 0o644); err != nil {
-			log.Fatal(err)
-		}
 		Running = true
-		fmt.Println("数据情况", vb, vt, fb, ft)
-		checkAndMail(vb, vt, fb, ft)
+		time.Sleep(time.Duration(C.YD.ReloadTime) * time.Second)
 	}
+
 }
 
 func getCode() string {
 	data, err := ioutil.ReadFile("./code.txt")
 	if err != nil {
-		log.Fatal("读取code失败", err)
+		log.Println("读取code失败", err)
+		return ""
 	}
 
 	return string(data)
@@ -150,18 +151,15 @@ func submit(code string) string {
 		console.log('提交')`, code)
 }
 
-func getFb() string {
-	return `document.getElementById('gprs').innerText`
+func getCookie() string {
+	return `document.cookie`
 }
 
-func getFt() string {
-	return `document.getElementById('sy_gprs').innerText`
-}
-
-func getVb() string {
-	return `document.getElementById('balance').innerText`
-}
-
-func getVt() string {
-	return `document.getElementById('highFeeT').innerText`
+func getToken(s string) string {
+	for _, x := range strings.Split(s, ";") {
+		if strings.Contains(x, "JSESSIONID") {
+			return strings.Trim(x, " ")
+		}
+	}
+	return ""
 }

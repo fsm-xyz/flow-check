@@ -16,6 +16,12 @@ func main() {
 
 	BeforeStart()
 
+	http.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		token := r.URL.Query().Get("t")
+		info.RefreshToken(token)
+		w.Write([]byte("token 更新成功"))
+	})
+
 	http.HandleFunc("/code", func(w http.ResponseWriter, r *http.Request) {
 		token := r.URL.Query().Get("c")
 		var data string = "code 保存成功"
@@ -52,7 +58,7 @@ func main() {
 
 func BeforeStart() {
 	filename := flag.String("c", "conf/config.json", "配置文件")
-	run = flag.Bool("r", false, "开启API检测")
+	run = flag.Bool("r", false, "开启检测")
 	flag.Parse()
 
 	info.BuildConfig(*filename)

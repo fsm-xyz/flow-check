@@ -2,6 +2,7 @@ package info
 
 import (
 	"encoding/json"
+	"fmt"
 	"headless-go/mail"
 	"io/ioutil"
 	"log"
@@ -25,7 +26,6 @@ type Config struct {
 		MinVoiceBalance        float64 `json:"min_voice_balance"`
 	} `json:"quota"`
 	YD struct {
-		Token       string `json:"token"`
 		Tel         string `json:"tel"`
 		WaitSMSTime int    `json:"wait_sms_time"`
 		ReloadTime  int    `json:"reload_time"`
@@ -33,7 +33,8 @@ type Config struct {
 	B struct {
 		Headless bool `json:"headless"`
 	} `json:"b"`
-	Port int `json:"port"`
+	Port int  `json:"port"`
+	Api  bool `json:"api"`
 }
 
 func BuildConfig(filename string) {
@@ -56,4 +57,10 @@ func BuildConfig(filename string) {
 
 		Password: C.Mail.Password,
 	}
+}
+
+func RefreshToken(t string) {
+
+	fmt.Println("token is ", token)
+	token = t
 }

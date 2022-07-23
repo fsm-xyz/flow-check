@@ -7,9 +7,6 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"time"
-
-	"xyz-zyz.io/fsm/flow-check/mail"
 )
 
 const (
@@ -29,37 +26,19 @@ const (
 	  }`
 )
 
-func Run() {
-	for {
-		check()
-		time.Sleep(30 * time.Second)
-	}
-}
+var token string
 
-func check() {
-	st := getStatus()
-	if !st.ResBody.IsHandle {
-		fmt.Println("请求失败")
-		return
-	}
-	if !st.checkFlow() {
-		st.sendMail(FlowMail)
-	}
-	if !st.checkVoice() {
-		st.sendMail(VocieMail)
-	}
-}
-
-func getStatus() *Status {
-	getStatusReq := buildReq(getStatusUrl, fmt.Sprintf(getStatusBody, C.YD.Token, C.YD.Tel))
+func getStatus() {
+	getStatusReq := buildReq(getStatusUrl, fmt.Sprintf(getStatusBody, token, C.YD.Tel))
 	data := httpDo(getStatusReq)
 	st := &Status{}
 	fmt.Println("信息结果: ", string(data))
 	if err := json.Unmarshal(data, st); err != nil {
 		log.Println("解析结果出错", "err: ", err)
+		return
 	}
 
-	return st
+	checkAndMail(st.ResBody.VoiceInfor.BalanceFeeTotal, st.ResBody.VoiceInfor.HighFeeTTotal, st.ResBody.FlowInfor.BalanceFeeTotal, st.ResBody.FlowInfor.HighFeeTotal)
 }
 
 var (
@@ -104,4 +83,46 @@ func httpDo(req *http.Request) []byte {
 	return respBody
 }
 
-var M *mail.Mail
+type Status struct {
+	ResBody struct {
+		VName     string  `json:"vName"`
+		Blance    float64 `json:"blance"`
+		Upflag    string  `json:"upflag"`
+		Llcx      string  `json:"llcx"`
+		FlowInfor struct {
+			BalanceFeeTotal string `json:"balanceFeeTotal"`
+			HighFeeTotal    string `json:"highFeeTotal"`
+			List            []struct {
+				Use      string `json:"use"`
+				PerUse   string `json:"perUse"`
+				PhoneNum string `json:"phoneNum"`
+				ShortNum string `json:"shortNum"`
+			} `json:"list"`
+			DiscntFeeTotal string `json:"discntFeeTotal"`
+		} `json:"flowInfor"`
+		BeforFalg  bool `json:"beforFalg"`
+		VoiceInfor struct {
+			BalanceFeeTotal  string `json:"balanceFeeTotal"`
+			DiscntValueTotal int    `json:"discntValueTotal"`
+			HighFeeTTotal    string `json:"highFeeTTotal"`
+			List             []struct {
+				Use      string `json:"use"`
+				PerUse   string `json:"perUse"`
+				PhoneNum string `json:"phoneNum"`
+				ShortNum string `json:"shortNum"`
+			} `json:"list"`
+		} `json:"voiceInfor"`
+		UserList []struct {
+			IsMain   bool   `json:"isMain"`
+			PhoneNum string `json:"phoneNum"`
+			Remark   string `json:"remark"`
+			Pic      string `json:"pic"`
+			ShortNum string `json:"shortNum"`
+		} `json:"userList"`
+		Sts      string `json:"sts"`
+		IopSts   string `json:"iopSts"`
+		VDesc    string `json:"vDesc"`
+		EndFalg  bool   `json:"endFalg"`
+		IsHandle bool   `json:"isHandle"`
+	} `json:"resBody"`
+}
