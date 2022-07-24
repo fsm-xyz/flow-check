@@ -46,7 +46,7 @@ func buildReq(url, body string) *http.Request {
 	if err != nil {
 		log.Println("请求错误", "err: ", err)
 	}
-	req.Close = false
+	req.Close = true
 
 	req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
 	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
