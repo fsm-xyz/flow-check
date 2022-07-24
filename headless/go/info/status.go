@@ -46,6 +46,8 @@ func buildReq(url, body string) *http.Request {
 	if err != nil {
 		log.Println("请求错误", "err: ", err)
 	}
+	req.Close = false
+
 	req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
 	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	req.Header.Set("Accept-Language", "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7")
@@ -66,6 +68,7 @@ func buildReq(url, body string) *http.Request {
 
 func httpDo(req *http.Request) []byte {
 	resp, err := http.DefaultClient.Do(req)
+
 	if err != nil {
 		log.Println("http请求出错", "err: ", err)
 		return nil
