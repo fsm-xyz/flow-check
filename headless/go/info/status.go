@@ -41,10 +41,6 @@ func getStatus() {
 	checkAndMail(st.ResBody.VoiceInfor.BalanceFeeTotal, st.ResBody.VoiceInfor.HighFeeTTotal, st.ResBody.FlowInfor.BalanceFeeTotal, st.ResBody.FlowInfor.HighFeeTotal)
 }
 
-var (
-	client = &http.Client{}
-)
-
 func buildReq(url, body string) *http.Request {
 	req, err := http.NewRequest("POST", url, strings.NewReader(body))
 	if err != nil {
@@ -69,7 +65,7 @@ func buildReq(url, body string) *http.Request {
 }
 
 func httpDo(req *http.Request) []byte {
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Println("http请求出错", "err: ", err)
 		return nil
