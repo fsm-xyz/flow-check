@@ -72,12 +72,14 @@ func httpDo(req *http.Request) []byte {
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Println("http请求出错", "err: ", err)
+		return nil
 	}
 	defer resp.Body.Close()
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("读取结果出错", "err: ", err)
+		return nil
 	}
 
 	return respBody
