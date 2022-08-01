@@ -38,6 +38,11 @@ func getStatus() {
 		return
 	}
 
+	if st.ResCode != 200 {
+		log.Println("结果 sNot OK", st.ResDesc)
+		return
+	}
+
 	checkAndMail(st.ResBody.VoiceInfor.BalanceFeeTotal, st.ResBody.VoiceInfor.HighFeeTTotal, st.ResBody.FlowInfor.BalanceFeeTotal, st.ResBody.FlowInfor.HighFeeTotal)
 }
 
@@ -85,6 +90,8 @@ func httpDo(req *http.Request) []byte {
 }
 
 type Status struct {
+	ResCode int    `json:"resCode"`
+	ResDesc string `json:"resDesc"`
 	ResBody struct {
 		VName     string  `json:"vName"`
 		Blance    float64 `json:"blance"`
