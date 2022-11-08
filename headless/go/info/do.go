@@ -163,3 +163,22 @@ func getToken(s string) string {
 	}
 	return ""
 }
+
+var APIRunning = false
+
+func API() {
+
+	if APIRunning {
+		return
+	}
+
+	for {
+		log.Println(C.YD.ReloadTime, "s定时刷新")
+		Running = false
+
+		getStatus()
+		APIRunning = true
+		time.Sleep(time.Duration(C.YD.ReloadTime) * time.Second)
+	}
+
+}

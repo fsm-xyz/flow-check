@@ -46,6 +46,10 @@ func main() {
 		w.Write([]byte(data))
 	})
 
+	http.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
+		go info.API()
+	})
+
 	go func() {
 		if *run {
 			fmt.Println("开启API自动检测功能")
